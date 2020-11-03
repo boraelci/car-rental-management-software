@@ -1,0 +1,51 @@
+/*body {background-color: #023e48;}*/
+
+table {background-color: white;}
+
+.navbar-nav .nav-item .nav-link {
+    color: #444;
+}
+
+.navbar-nav .nav-item.active .nav-link,
+.navbar-nav .nav-item:hover .nav-link {
+    color: #FF8C00;
+
+    /*color: #00b337;*/
+}
+
+[type="date"] {
+  background:#fff url(https://cdn1.iconfinder.com/data/icons/cc_mono_icon_set/blacks/16x16/calendar_2.png)  97% 50% no-repeat ;
+}
+[type="date"]::-webkit-inner-spin-button {
+  display: none;
+}
+[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+}
+
+.form-control input {
+    border: none;
+    padding-left: 4px;
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.wow {
+    border-collapse: separate;
+    border-spacing: 0;
+    background-color: white;
+}
+
+table, td {
+    border: 1px solid black;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    padding: 5px;
+}
+
+select0 option["Ad Soyad"] {
+display: none;
+}

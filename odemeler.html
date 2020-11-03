@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+
+<script src="https://www.gstatic.com/firebasejs/5.8.5/firebase.js"></script>
+<script>
+// Initialize Firebase
+</script>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="https://www.gstatic.com/firebasejs/5.9.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.9.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/5.9.0/firebase-firestore.js"></script>
+<link rel="shortcut icon" href="/favicon1.ico" type="image/x-icon">
+<link rel="icon" href="/favicon1.ico" type="image/x-icon">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"/>
+<link rel="stylesheet" type="text/css" "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.css"/>
+<script src="https://code.jquery.com/jquery-3.3.1.js" type="text/javascript"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" type="text/javascript"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js" type="text/javascript"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<link rel="stylesheet" type="text/css" href="main.css"/>
+    <!-- <link rel="stylesheet" type="text/css" href="tyt.css"/> -->
+
+    <title>NetCar</title>
+  </head>
+  <body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+  <a class="navbar-brand" href="index.html" style="margin-left:23vw"><img src="netcarlogo3.png" style="height:50px"></a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavDropdown">
+    <ul class="navbar-nav"  style="margin-left:8vw">
+      <li class="nav-item">
+        <a class="nav-link" href="index.html"><strong style="margin-left:1vw; font-weight: 700;font-size: 16px;letter-spacing: 1px; text-transform: uppercase">İşlemler</strong><span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="musteriler.html"><strong style="margin-left:1vw; font-weight: 700;font-size: 16px;letter-spacing: 1px; text-transform: uppercase">Müşteriler</strong></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="araclar.html"><strong style="margin-left:1vw; font-weight: 700;font-size: 16px;letter-spacing: 1px; text-transform: uppercase">Araçlar</strong></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="arsiv.html"><strong style="margin-left:1vw; font-weight: 700;font-size: 16px;letter-spacing: 1px; text-transform: uppercase">Arşiv</strong></a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="odemeler.html"><strong style="margin-left:1vw; font-weight: 700;font-size: 16px;letter-spacing: 1px; text-transform: uppercase">Ödemeler</strong></a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<script>
+
+firebase.initializeApp({
+  apiKey: "AIzaSyBGMuhvR99ZCEfyzpa84s6WB6XqaAKvFxg",
+  authDomain: "arackira-netcar.firebaseapp.com",
+  projectId: "arackira-netcar"
+});
+
+var musteri1 = "Müşteri Seç";
+
+function Sign() {
+
+var provider = new firebase.auth.GoogleAuthProvider();
+
+  firebase.auth().signInWithPopup(provider).then(function(result) {
+    firebase.auth().languageCode = 'tr';
+    // This gives you a Google Access Token. You can use it to access the Google API.
+    var token = result.credential.accessToken;
+    // The signed-in user info.
+    var user = result.user;
+    // ...
+  }).catch(function(error) {
+    // Handle Errors here.
+    var errorCode = error.code;
+    var errorMessage = error.message;
+    // The email of the user's account used.
+    var email = error.email;
+    // The firebase.auth.AuthCredential type that was used.
+    var credential = error.credential;
+    // ...
+
+  });
+ }
+
+firebase.auth().onAuthStateChanged(function(user) {
+  if (user) {
+    // User is signed in.
+    start();
+    // ...
+  } else {
+    Sign();
+  }
+});
+
+
+var db = firebase.firestore();
+
+var DocIDd = 0;
+
+function start() {
+db.collection("Odemeler").where("AdSoyad","==",musteri1).get().then((querySnapshot) => {
+  var array1 = Array(querySnapshot.size);
+  for (var j = 0; j < array1.length; j++) {
+  array1[j] = new Array(6);
+  }
+  i = 0;
+
+    querySnapshot.forEach((doc) => {
+        //console.log(`${doc.id} => ${doc.data().born}, ${doc.data().first} `);
+        //console.log("Document data:", doc.data().born);
+        array1[i][0] = doc.id;
+        array1[i][1] = doc.data().AdSoyad;
+        array1[i][2] = doc.data().Tarih;
+        array1[i][3] = doc.data().OdemeTipi;
+        array1[i][4] = doc.data().Ucret;
+        array1[i][5] = doc.data().Aciklama;
+        //console.log("Document data:", array1[i]);
+        i++;
+    });
+
+    renderF(array1);
+
+} ); }
+
+function renderF(array1) {
+var dataSet2 = array1;
+$(document).ready(function() {
+$('#datatable1').DataTable( {
+  data: dataSet2,
+  columns: [
+      { title: "DocID" },
+      { title: "Ad Soyad" },
+      { title: "Tarih" },
+      { title: "Ödeme Tipi" },
+      { title: "Ücret" },
+      { title: "Açıklama" },
+  ],
+  "language": {
+"sDecimal":        ",",
+"sEmptyTable":     "Bu müşteri için hiç ödeme kaydı yok.",
+"sInfo":           "_TOTAL_ kayıttan _START_ - _END_ arasındaki kayıtlar gösteriliyor",
+"sInfoEmpty":      "Kayıt yok",
+"sInfoFiltered":   "(_MAX_ kayıt içerisinden bulunan)",
+"sInfoPostFix":    "",
+"sInfoThousands":  ".",
+"sLengthMenu":     "Sayfada _MENU_ kayıt göster",
+"sLoadingRecords": "Yükleniyor...",
+"sProcessing":     "İşleniyor...",
+"sSearch":         "Ara:",
+"sZeroRecords":    "Eşleşen kayıt bulunamadı",
+"oPaginate": {
+"sFirst":    "İlk",
+"sLast":     "Son",
+"sNext":     "Sonraki",
+"sPrevious": "Önceki"
+},
+"oAria": {
+"sSortAscending":  ": artan sütun sıralamasını aktifleştir",
+"sSortDescending": ": azalan sütun sıralamasını aktifleştir"
+},
+"select": {
+"rows": {
+    "_": "%d kayıt seçildi",
+    "0": "",
+    "1": "1 kayıt seçildi"
+} }
+},
+
+  "columnDefs": [
+  { "visible": false, "targets": 0 },
+  //{ "visible": false, "targets": 10 }
+],
+
+  "order": [[ 2, "desc" ]]
+} );
+
+var table = $('#datatable1').DataTable();
+$('#datatable1 tbody').on( 'click', 'tr', function () {
+    if ( $(this).hasClass('selected') ) {
+        $(this).removeClass('selected');
+
+        DocIDd = 0;
+
+    }
+
+    else {
+        table.$('tr.selected').removeClass('selected');
+        $(this).addClass('selected');
+
+        DocIDd = 1;
+
+    }
+
+} );
+document.getElementById("DuzenleTusu").onclick = function() {DuzenleFunction()};
+function DuzenleFunction() {
+
+  if (document.getElementById("musteri").value != "Müşteri Seç") {
+
+  if (DocIDd == 1) {
+
+  document.getElementById("DocID2").value = table.cell(table.row('.selected'),0).data();
+  document.getElementById("AdSoyad2").value = table.cell(table.row('.selected'),1).data();
+  document.getElementById("Tarih2").value = table.cell(table.row('.selected'),2).data();
+  document.getElementById("OdemeTipi2").value = table.cell(table.row('.selected'),3).data();
+  document.getElementById("Ucret2").value = table.cell(table.row('.selected'),4).data();
+  document.getElementById("Aciklama2").value = table.cell(table.row('.selected'),5).data();
+
+  $('#DuzenleFormu').modal('show'); }
+
+  else {
+
+    alert("Lütfen işlem seçiniz.");
+
+  }
+}
+
+else {
+
+alert("Lütfen müşteri seçiniz.")
+
+}
+  }
+
+  document.getElementById("SilTusu").onclick = function() {SilFunction()};
+  function SilFunction() {
+
+    if (document.getElementById("musteri").value != "Müşteri Seç") {
+
+    if (DocIDd == 1) {
+      var result = confirm("Bu işlemi silmek istediğinize emin misiniz?");
+      if (result) {
+      var silinecek = table.cell(table.row('.selected'),0).data();
+
+      db.collection("Odemeler").doc(silinecek).delete().then(function() {
+        console.log("Document successfully deleted!");
+        val();
+      }).catch(function(error) {
+        console.error("Error removing document: ", error);
+      });
+  } }
+
+    else {
+
+      alert("Lütfen işlem seçiniz.");
+
+    }
+
+}
+
+else {
+
+alert("Lütfen müşteri seçiniz.");
+
+} } }); }
+
+function signout() {
+
+  firebase.auth().signOut().then(function() {
+    // Sign-out successful.
+  }).catch(function(error) {
+    // An error happened.
+  });
+
+
+
+}
+
+</script>
+<!-- <button style="margin-top:400px" id="signout" onclick="signout()">SignOUT</button> -->
+
+
+<!-- <img src="test.png" style="width:70%; margin-left: 3vw"/> -->
+
+<div style="margin-top:100px;">
+  <div class="" style="float:left; margin-left: 21vw">
+  <select onchange="val()" class="browser-default custom-select" id="musteri"></select></div>
+<div class="text-center" style="float:left; margin-left: 8vw">
+  <input type="image" data-toggle="modal" src="add1.png" style="width:45px" id="YeniTusu"/>
+</div>
+
+<div class="text-center" style="float:left; margin-left: 5vw">
+  <input type="image" data-toggle="modal" src="edit1.png" style="width:45px" id="DuzenleTusu"/>
+</div>
+
+<div class="text-center" style="float:left; margin-left: 5vw">
+  <input type="image" src="delete1.png" style="width:45px" id="SilTusu"/>
+</div>
+
+<div class="text-center" style="float:left; margin-left: 14vw">
+  <input type="image" src="refresh5.png" style="width:45px" id="yenile"/>
+</div>
+
+</div>
+
+<div class="modal fade" id="YeniIslemFormu" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+aria-hidden="true">
+<div class="modal-dialog" role="document">
+  <div class="modal-content">
+    <div class="modal-header text-center">
+      <h4 class="modal-title w-100 font-weight-bold">Ödeme Ekle</h4>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <div class="modal-body container" style="width:70%">
+      <div class="form-group">
+        <i style="color:red"> * Bu alanların doldurulması zorunludur. </i></div>
+
+        <div class="form-group">
+        Ad Soyad <span style="color:red"> *<select class="browser-default custom-select" id="AdSoyad"></select></div>
+        <div class="form-group">
+        Tarih <span style="color:red"> *<input class="form-control" type="date" id="Tarih"></div>
+
+        <div class="form-group">
+        Ödeme Tipi <span style="color:red"> *<select class="browser-default custom-select" id="OdemeTipi"></select></div>
+
+        <div class="form-group">
+        Ücret <span style="color:red"> *<input class="form-control" type="number" id="Ucret" placeholder="₺"></div>
+        <div class="form-group">
+        Açıklama <span style="color:red"> *<input class="form-control" type="text" id="Aciklama"></div>
+
+
+        <button type="button" style="width:100%; height:6vh" class="btn btn-primary" id="IslemEkle" onclick="YeniIslemEkle()">Ekle</button>
+
+</div>
+
+    <!-- <div class="modal-body container" style="width:70%">
+
+        <div class="form-group">
+        Ad Soyad: <select class="browser-default custom-select" id="AdSoyad"></select></div>
+        <div class="form-group">
+        Tarih: <input class="form-control" type="date" id="Tarih"></div>
+        <div class="form-group">
+        Ödeme Al: <input class="form-control" type="number" placeholder="₺" id="Odeme"></div>
+        <div class="form-group">
+        Provizyon: <input class="form-control" type="number" id="AlPro" placeholder="₺"></div>
+        <div class="form-group">
+        Provz. İade: <input class="form-control" type="number" id="VerPro" placeholder="₺"></div>
+
+        <button type="button" class="btn btn-primary" id="IslemEkle" onclick="YeniIslemEkle()">Ekle</button> -->
+
+</div>
+</div>
+</div>
+
+<div class="modal fade" id="DuzenleFormu" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+aria-hidden="true">
+<div class="modal-dialog" role="document">
+  <div class="modal-content">
+    <div class="modal-header text-center">
+      <h4 class="modal-title w-100 font-weight-bold">Ödeme Düzenle</h4>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <div class="modal-body container" style="width:70%">
+      <div class="form-group">
+        <i style="color:red"> * Bu alanların doldurulması zorunludur. </i></div>
+
+        <input type="hidden" id="DocID2">
+        <div class="form-group">
+        Ad Soyad <span style="color:red"> *<select class="browser-default custom-select" id="AdSoyad2"></select></div>
+
+        <div class="form-group">
+        Tarih <span style="color:red"> *<input class="form-control" type="date" id="Tarih2"></div>
+
+        <div class="form-group">
+        Ödeme Tipi <span style="color:red"> *<select class="browser-default custom-select" id="OdemeTipi2"></select></div>
+
+        <div class="form-group">
+        Ücret <span style="color:red"> *<input class="form-control" type="number" id="Ucret2" placeholder="₺"></div>
+
+        <div class="form-group">
+        Açıklama <span style="color:red"> *<input class="form-control" type="text" id="Aciklama2"></div>
+
+        <button type="button" class="btn btn-primary" style="width:100%; height:6vh" id="IslemDuzenle" onclick="IslemDuzenle()">Değiştir</button>
+</div>
+
+  </div>
+</div>
+</div>
+
+<br style="line-height: 60px"/>
+<div class="container" style="width:60%; margin-bottom:50px">
+<table class="table table-striped table-bordered table-hover" id="datatable1" style="width:100%"></table>
+</div>
+
+<div class="container" style="width:20%;">
+<table class="table table-striped table-bordered table-hover"><thead>
+    <tr>
+      <td>Müşterinin Borcu:</td>
+      <th id ='parag'> -- </th>
+    </tr>
+  </thead></table></div>
+<!-- <button id="aa">HEY</button>-->
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.js"></script>
+
+
+<script>
+
+function YeniIslemEkle() {
+
+  var AdSoyad1 = document.getElementById("AdSoyad").value;
+  var Tarih1 = document.getElementById("Tarih").value;
+  var OdemeTipi1 = document.getElementById("OdemeTipi").value;
+  var Ucret1 = document.getElementById("Ucret").value;
+  var Aciklama1 = document.getElementById("Aciklama").value;
+
+  if (AdSoyad1 != "Müşteri Seç"){
+    if (Tarih1.length != 0){
+
+
+      db.collection("Odemeler").add({
+        AdSoyad: (AdSoyad1),
+        Tarih: (Tarih1),
+        OdemeTipi: (OdemeTipi1),
+        Ucret: (Ucret1),
+        Aciklama: (Aciklama1)
+    })
+    .then(function(docRef) {
+        console.log("Document written with ID: ", docRef.id);
+        document.getElementById("musteri").value = AdSoyad1;
+        val();
+    })
+    .catch(function(error) {
+        console.error("Error adding document: ", error);
+
+    });
+
+    $('#YeniIslemFormu').modal('hide');
+
+    }
+
+    else {
+      alert("Tarih boş");
+    }
+  }
+
+  else {
+    alert("Ad Soyad boş");
+  }
+
+}
+
+function IslemDuzenle(){
+
+
+
+  var DocID2 = document.getElementById("DocID2").value;
+  var AdSoyad2 = document.getElementById("AdSoyad2").value;
+  var Tarih2 = document.getElementById("Tarih2").value;
+  var OdemeTipi2 = document.getElementById("OdemeTipi2").value;
+  var Ucret2 = document.getElementById("Ucret2").value;
+  var Aciklama2 = document.getElementById("Aciklama2").value;
+
+  db.collection("Odemeler").doc(DocID2).set({
+    AdSoyad: (AdSoyad2),
+    Tarih: (Tarih2),
+    OdemeTipi: (OdemeTipi2),
+    Ucret: (Ucret2),
+    Aciklama: (Aciklama2)
+})
+.then(function() {
+    console.log("Document successfully written!");
+    val();
+})
+.catch(function(error) {
+    console.error("Error writing document: ", error);
+});
+
+$('#DuzenleFormu').modal('hide');
+
+}
+
+document.getElementById("yenile").onclick = function() {reload()};
+
+function reload(){
+
+location.reload();
+
+}
+
+//function() {val()};
+function boom() {
+
+  if (musteri1 == "Müşteri Seç") {
+
+alert("Lütfen müşteri seçiniz.");
+
+  }
+
+  else {
+
+  db.collection("Odemeler").where("AdSoyad","==",musteri1).get().then((querySnapshot) => {
+    var array1 = Array(querySnapshot.size);
+    for (var j = 0; j < array1.length; j++) {
+    array1[j] = new Array(6);
+    }
+    i = 0;
+
+      querySnapshot.forEach((doc) => {
+          //console.log(`${doc.id} => ${doc.data().born}, ${doc.data().first} `);
+          //console.log("Document data:", doc.data().born);
+          array1[i][0] = doc.id;
+          array1[i][1] = doc.data().AdSoyad;
+          array1[i][2] = doc.data().Tarih;
+          array1[i][3] = doc.data().OdemeTipi;
+          array1[i][4] = doc.data().Ucret;
+          array1[i][5] = doc.data().Aciklama;
+
+          //console.log("Document data:", array1[i]);
+          i++;
+      });
+
+      renderAgain(array1);
+
+  } );
+
+function renderAgain(array1) {
+
+$('#datatable1').DataTable().clear().rows.add(array1).draw();
+
+ }
+
+} }
+
+document.getElementById("YeniTusu").onclick = function() {myFunction7()};
+function myFunction7() {
+
+  document.getElementById("AdSoyad").value = "Müşteri Seç";
+  document.getElementById("Tarih").valueAsDate = new Date();
+  document.getElementById("OdemeTipi").value = "";
+  document.getElementById("Ucret").value = "";
+  document.getElementById("Aciklama").value = "";
+
+  $('#YeniIslemFormu').modal('show'); }
+
+  var select5 = document.getElementById("OdemeTipi");
+  select5.options[select5.options.length] = new Option("Kira Ödemesi Al");
+  select5.options[select5.options.length] = new Option("Provizyon Al");
+  select5.options[select5.options.length] = new Option("Proizyon İade Et");
+  select5.options[select5.options.length] = new Option("Ceza İşle");
+  select5.options[select5.options.length] = new Option("Ceza Ödemesi Al");
+
+  var select6 = document.getElementById("OdemeTipi2");
+  select6.options[select6.options.length] = new Option("Kira Ödemesi Al");
+  select6.options[select6.options.length] = new Option("Provizyon");
+  select6.options[select6.options.length] = new Option("Provizyon İade Et");
+  select6.options[select6.options.length] = new Option("Ceza İşle");
+  select6.options[select6.options.length] = new Option("Ceza Ödemesi Al");
+
+  db.collection("Musteriler").get().then((querySnapshot) => {
+
+    var select = document.getElementById("AdSoyad");
+    var select2 = document.getElementById("AdSoyad2");
+    var select3 = document.getElementById("musteri");
+
+    select3.options[select3.options.length] = new Option("Müşteri Seç");
+    select3.options[0].hidden = true;
+    select.options[select.options.length] = new Option("Müşteri Seç");
+    select.options[0].hidden = true;
+
+      querySnapshot.forEach((doc) => {
+          //console.log(`${doc.id} => ${doc.data().born}, ${doc.data().first} `);
+          //console.log("Document data:", doc.data().born);
+          select.options[select.options.length] = new Option(doc.data().AdSoyad);
+          select2.options[select2.options.length] = new Option(doc.data().AdSoyad);
+          select3.options[select3.options.length] = new Option(doc.data().AdSoyad);
+      });
+      });
+
+
+      document.getElementById('Tarih').valueAsDate = new Date();
+
+
+function val() {
+
+musteri1 = document.getElementById('musteri').value;
+boom();
+
+var borc = 0;
+db.collection("AracKira").where("AdSoyad","==",musteri1).get().then((querySnapshot) => {
+
+    querySnapshot.forEach((doc) => {
+        var temp = parseInt(doc.data().Gunluk, 10);
+        var fark = parseInt(doc.data().Fark, 10);
+
+        borc = borc + (temp * fark);
+
+    });
+
+    db.collection("Odemeler").where("AdSoyad","==",musteri1).get().then((querySnapshot) => {
+
+        querySnapshot.forEach((doc) => {
+
+            if (doc.data().OdemeTipi=="Kira Ödemesi Al"){
+
+              borc = borc - parseInt(doc.data().Ucret, 10);
+
+            }
+
+            else if (doc.data().OdemeTipi=="Provizyon"){
+
+              borc = borc - parseInt(doc.data().Ucret, 10);
+
+            }
+
+            else if (doc.data().OdemeTipi=="Provizyon İade Et"){
+
+              borc = borc + parseInt(doc.data().Ucret, 10);
+
+            }
+
+            else if (doc.data().OdemeTipi=="Ceza İşle"){
+
+              borc = borc + parseInt(doc.data().Ucret, 10);
+
+            }
+
+            else if (doc.data().OdemeTipi=="Ceza Ödemesi Al"){
+
+              borc = borc - parseInt(doc.data().Ucret, 10);
+
+            }
+
+        });
+
+    document.getElementById('parag').innerHTML = borc + " ₺";
+
+      });
+    });
+
+ }
+
+
+
+
+
+</script>
+
+
+
+  </body>
+  </html>

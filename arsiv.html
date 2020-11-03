@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+
+<script src="https://www.gstatic.com/firebasejs/5.8.5/firebase.js"></script>
+<script>
+// Initialize Firebase
+</script>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="https://www.gstatic.com/firebasejs/5.9.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.9.0/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/5.9.0/firebase-firestore.js"></script>
+<link rel="shortcut icon" href="/favicon1.ico" type="image/x-icon">
+<link rel="icon" href="/favicon1.ico" type="image/x-icon">
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css"/>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/dataTables.bootstrap4.min.css"/>
+<link rel="stylesheet" type="text/css" "https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.css"/>
+<script src="https://code.jquery.com/jquery-3.3.1.js" type="text/javascript"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" type="text/javascript"></script>
+<script src="https://cdn.datatables.net/1.10.19/js/dataTables.bootstrap4.min.js" type="text/javascript"></script>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+<link rel="stylesheet" type="text/css" href="main.css"/>
+    <!-- <link rel="stylesheet" type="text/css" href="tyt.css"/> -->
+
+    <title>NetCar</title>
+  </head>
+  <body>
+
+<!-- //Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
+  <a class="navbar-brand" href="index.html" style="margin-left:23vw"><img src="netcarlogo3.png" style="height:50px"></a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="collapse navbar-collapse" id="navbarNavDropdown">
+    <ul class="navbar-nav"  style="margin-left:8vw">
+      <li class="nav-item">
+        <a class="nav-link" href="index.html"><strong style="margin-left:1vw; font-weight: 700;font-size: 16px;letter-spacing: 1px; text-transform: uppercase">İşlemler</strong><span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="musteriler.html"><strong style="margin-left:1vw; font-weight: 700;font-size: 16px;letter-spacing: 1px; text-transform: uppercase">Müşteriler</strong></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="araclar.html"><strong style="margin-left:1vw; font-weight: 700;font-size: 16px;letter-spacing: 1px; text-transform: uppercase">Araçlar</strong></a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="arsiv.html"><strong style="margin-left:1vw; font-weight: 700;font-size: 16px;letter-spacing: 1px; text-transform: uppercase">Arşiv</strong></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="odemeler.html"><strong style="margin-left:1vw; font-weight: 700;font-size: 16px;letter-spacing: 1px; text-transform: uppercase">Ödemeler</strong></a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+<script>
+
+firebase.initializeApp({
+  apiKey: "AIzaSyBGMuhvR99ZCEfyzpa84s6WB6XqaAKvFxg",
+  authDomain: "arackira-netcar.firebaseapp.com",
+  projectId: "arackira-netcar"
+});
+
+function Sign() {
+
+var provider = new firebase.auth.GoogleAuthProvider();
+
+//firebase.auth().signInWithRedirect(provider);
+
+  firebase.auth().signInWithPopup(provider).then(function(result) {
+    firebase.auth().languageCode = 'tr';
+    // This gives you a Google Access Token. You can use it to access the Google API.
+    var token = result.credential.accessToken;
+    // The signed-in user info.
+    var user = result.user;
+    // ...
+  }).catch(function(error) {
+    // Handle Errors here.
+    var errorCode = error.code;
+    var errorMessage = error.message;
+    // The email of the user's account used.
+    var email = error.email;
+    // The firebase.auth.AuthCredential type that was used.
+    var credential = error.credential;
+    // ...
+
+  });
+ }
+
+firebase.auth().onAuthStateChanged(function(user) {
+  if (user) {
+    // User is signed in.
+    start();
+    // ...
+  } else {
+    Sign();
+  }
+});
+
+/*firebase.auth().getRedirectResult().then(function(result) {
+  if (result.credential) {
+    // This gives you a Google Access Token. You can use it to access the Google API.
+    var token = result.credential.accessToken;
+    // ...
+  }
+  // The signed-in user info.
+  var user = result.user;
+}).catch(function(error) {
+  // Handle Errors here.
+  var errorCode = error.code;
+  var errorMessage = error.message;
+  // The email of the user's account used.
+  var email = error.email;
+  // The firebase.auth.AuthCredential type that was used.
+  var credential = error.credential;
+  // ...
+});*/
+
+var db = firebase.firestore();
+
+var DocIDd= 0;
+/*
+function renderF(array) {
+
+  console.log(array);
+
+}*/
+
+//db.collection("AracKira").where("AlisTarihi","<=",tarihsorgu).where(VerisTarihi,">=",tarihsorgu).get().then((querySnapshot) => {
+
+
+function start() {
+db.collection("AracKira").where("Arsiv","==",1).get().then((querySnapshot) => {
+  var array1 = Array(querySnapshot.size);
+  for (var j = 0; j < array1.length; j++) {
+  array1[j] = new Array(13);
+  }
+  i = 0;
+
+    querySnapshot.forEach((doc) => {
+        //console.log(`${doc.id} => ${doc.data().born}, ${doc.data().first} `);
+        //console.log("Document data:", doc.data().born);
+        array1[i][0] = doc.id;
+        array1[i][1] = doc.data().AdSoyad;
+        array1[i][2] = doc.data().Model;
+        array1[i][3] = doc.data().Plaka;
+        array1[i][4] = doc.data().AlisTarihi;
+        array1[i][5] = doc.data().VerisTarihi;
+        array1[i][6] = doc.data().Saat;
+        array1[i][7] = doc.data().kmAcilis;
+        array1[i][8] = doc.data().kmKapanis;
+        array1[i][9] = doc.data().Gunluk;
+        array1[i][10] = doc.data().TeslimEden;
+        array1[i][11] = doc.data().TeslimAlan;
+        array1[i][12] = doc.data().Arsiv;
+        //console.log("Document data:", array1[i]);
+        i++;
+    });
+
+    renderF(array1);
+
+} ); }
+
+function renderF(array1) {
+var dataSet2 = array1;
+$(document).ready(function() {
+$('#datatable1').DataTable( {
+  data: dataSet2,
+  columns: [
+      { title: "DocID" },
+      { title: "Ad Soyad" },
+      { title: "Model" },
+      { title: "Plaka" },
+      { title: "Alış Tarihi" },
+      { title: "Veriş Tarihi" },
+      { title: "Saat" },
+      { title: "Açılış" },
+      { title: "Kapanış" },
+      { title: "Günlük" },
+      { title: "T. Eden" },
+      { title: "T. Alan" },
+      { title: "Arsiv" }
+  ],
+  "language": {
+"sDecimal":        ",",
+"sEmptyTable":     "Tabloda herhangi bir veri mevcut değil",
+"sInfo":           "_TOTAL_ kayıttan _START_ - _END_ arasındaki kayıtlar gösteriliyor",
+"sInfoEmpty":      "Kayıt yok",
+"sInfoFiltered":   "(_MAX_ kayıt içerisinden bulunan)",
+"sInfoPostFix":    "",
+"sInfoThousands":  ".",
+"sLengthMenu":     "Sayfada _MENU_ kayıt göster",
+"sLoadingRecords": "Yükleniyor...",
+"sProcessing":     "İşleniyor...",
+"sSearch":         "Ara:",
+"sZeroRecords":    "Eşleşen kayıt bulunamadı",
+"oPaginate": {
+"sFirst":    "İlk",
+"sLast":     "Son",
+"sNext":     "Sonraki",
+"sPrevious": "Önceki"
+},
+"oAria": {
+"sSortAscending":  ": artan sütun sıralamasını aktifleştir",
+"sSortDescending": ": azalan sütun sıralamasını aktifleştir"
+},
+"select": {
+"rows": {
+    "_": "%d kayıt seçildi",
+    "0": "",
+    "1": "1 kayıt seçildi"
+} }
+},
+
+  "columnDefs": [
+  { "visible": false, "targets": 0 },
+  { "visible": false, "targets": 12 },
+
+  //{ "visible": false, "targets": 10 }
+],
+
+  "order": [[ 5, "desc" ]]
+} );
+
+var table = $('#datatable1').DataTable();
+$('#datatable1 tbody').on( 'click', 'tr', function () {
+    if ( $(this).hasClass('selected') ) {
+        $(this).removeClass('selected');
+
+        DocIDd = 0;
+
+    }
+
+    else {
+        table.$('tr.selected').removeClass('selected');
+        $(this).addClass('selected');
+
+        DocIDd = 1;
+
+    }
+
+} );
+
+document.getElementById("DuzenleTusu").onclick = function() {DuzenleFunction()};
+function DuzenleFunction() {
+
+  if (DocIDd == 1) {
+
+  document.getElementById("DocID2").value = table.cell(table.row('.selected'),0).data();
+  document.getElementById("AdSoyad2").value = table.cell(table.row('.selected'),1).data();
+  document.getElementById("Model2").value = table.cell(table.row('.selected'),2).data();
+  document.getElementById("Plaka2").value = table.cell(table.row('.selected'),3).data();
+  document.getElementById("AlisTarihi2").value = table.cell(table.row('.selected'),4).data();
+  document.getElementById("VerisTarihi2").value = table.cell(table.row('.selected'),5).data();
+  document.getElementById("Saat2").value = table.cell(table.row('.selected'),6).data();
+  document.getElementById("kmAcilis2").value = table.cell(table.row('.selected'),7).data();
+  document.getElementById("kmKapanis2").value = table.cell(table.row('.selected'),8).data();
+  document.getElementById("Gunluk2").value = table.cell(table.row('.selected'),9).data();
+  document.getElementById("TeslimEden2").value = table.cell(table.row('.selected'),10).data();
+  document.getElementById("TeslimAlan2").value = table.cell(table.row('.selected'),11).data();
+
+  tempArsiv = table.cell(table.row('.selected'),12).data();
+  if(tempArsiv == 0){
+    document.getElementById("radio2").checked = true;
+  }
+  else if (tempArsiv == 1) {
+    document.getElementById("radio3").checked = true;
+  }
+
+  $('#DuzenleFormu').modal('show'); }
+
+  else {
+
+    alert("Lütfen işlem seçiniz.");
+
+  }
+  }
+
+  document.getElementById("SilTusu").onclick = function() {SilFunction()};
+  function SilFunction() {
+
+    if (DocIDd == 1) {
+
+      var result = confirm("Bu işlemi silmek istediğinize emin misiniz?");
+  if (result) {
+  var silinecek = table.cell(table.row('.selected'),0).data();
+
+  db.collection("AracKira").doc(silinecek).delete().then(function() {
+  console.log("Document successfully deleted!");
+  boom();
+  }).catch(function(error) {
+  console.error("Error removing document: ", error);
+  });
+  } }
+
+    else {
+
+      alert("Lütfen işlem seçiniz.");
+
+    }
+
+
+
+    }
+
+
+} ); }
+
+function signout() {
+
+  firebase.auth().signOut().then(function() {
+    // Sign-out successful.
+  }).catch(function(error) {
+    // An error happened.
+  });
+
+
+
+}
+
+</script>
+
+<!-- <button style="margin-top:400px" id="signout" onclick="signout()">SignOUT</button> -->
+
+
+<!-- <img src="test.png" style="width:70%; margin-left: 3vw"/> -->
+
+<div style="margin-top:100px;">
+<div class="form-inline" style="float:left; margin-left: 13vw">
+Tarih: <input style="margin-left:5px; margin-right:5px" type="date" class="form-control" id="tarihsorgu" value="">
+<button class="btn btn-primary" type="submit" id="sorgula" value="Sorgula">Sorgula</button></div>
+
+<!--<div class="text-center" style="float:left; margin-left: 12vw">
+  <input type="image" data-toggle="modal" src="add1.png" style="width:45px" id="YeniTusu"/>
+</div> -->
+
+<div class="text-center" style="float:left; margin-left: 16vw">
+  <input type="image" data-toggle="modal" src="edit1.png" style="width:45px" id="DuzenleTusu"/>
+</div>
+
+<div class="text-center" style="float:left; margin-left: 5vw">
+  <input type="image" src="delete1.png" style="width:45px" id="SilTusu"/>
+</div>
+
+<div class="text-center" style="float:left; margin-left: 14vw">
+  <input type="image" src="refresh5.png" style="width:45px" id="yenile"/>
+</div>
+
+</div>
+
+<div class="modal fade" id="DuzenleFormu" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+aria-hidden="true">
+<div class="modal-dialog" role="document">
+  <div class="modal-content">
+    <div class="modal-header text-center">
+      <h4 class="modal-title w-100 font-weight-bold">İşlem Düzenle</h4>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body container" style="width:70%">
+      <input type="hidden" id="DocID2">
+      <div class="form-group">
+      <i style="color:red"> * Bu alanların doldurulması zorunludur. </i></div>
+        <div class="form-group">
+        Ad Soyad <span style="color:red"> *</span><select class="browser-default custom-select" id="AdSoyad2"></select>
+      </div>
+      <div class="form-group">
+        Model <span style="color:red"> *</span><select class="browser-default custom-select" id="Model2"></select>
+        </div>
+        <div class="form-group">
+        Plaka <span style="color:red"> *</span><select class="browser-default custom-select" id="Plaka2"></select></div>
+        <div class="form-group">
+        Alış Tarihi <span style="color:red"> *</span><input class="form-control" type="date" id="AlisTarihi2"></div>
+        <div class="form-group">
+        Veriş Tarihi <span style="color:red"> *</span><input class="form-control" type="date" id="VerisTarihi2"></div>
+        <div class="form-group">
+        Alış Saati <input class="form-control" type="time" id="Saat2"></div>
+        <div class="form-group">
+        Kilometre Açılış <input class="form-control" type="text" id="kmAcilis2"></div>
+        <div class="form-group">
+        Kilometre Kapanış <input class="form-control" type="text" id="kmKapanis2"></div>
+        <div class="form-group">
+        Günlük Fiyat <span style="color:red"> *</span><input class="form-control" type="number" id="Gunluk2"></div>
+        <div class="form-group">
+        Teslim Eden <input class="form-control" type="text" id="TeslimEden2"></div>
+        <div class="form-group">
+        Teslim Alan <input class="form-control" type="text" id="TeslimAlan2"></div>
+        <div class="form-group">
+        Açık: <input style="margin-right:1vw" type="radio" name="radio5" id="radio2" value="0" checked>
+        Kapat: <input type="radio" name="radio5" id="radio3" value ="1"></div>
+        <button type="button" style="width:100%; height:6vh" class="btn btn-primary" id="IslemDuzenle" onclick="IslemDuzenle()">Değiştir</button>
+
+    </div>
+
+  </div>
+</div>
+</div>
+</div>
+
+<br style="line-height: 60px"/>
+<div class="wow" style="width:90%; margin-left:4vw">
+<table class="table table-striped table-bordered table-hover" id="datatable1" style="width:100%"></table></div>
+
+<!-- <button id="aa">HEY</button>-->
+
+<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/dt-1.10.18/datatables.min.js"></script>
+
+<script>
+
+function IslemDuzenle(){
+
+  var DocID2 = document.getElementById("DocID2").value;
+  var AdSoyad2 = document.getElementById("AdSoyad2").value;
+  var Model2 = document.getElementById("Model2").value;
+  var Plaka2 = document.getElementById("Plaka2").value;
+  var AlisTarihi2 = document.getElementById("AlisTarihi2").value;
+  var VerisTarihi2 = document.getElementById("VerisTarihi2").value;
+  var Saat2 = document.getElementById("Saat2").value;
+  var kmAcilis2 = document.getElementById("kmAcilis2").value;
+  var kmKapanis2 = document.getElementById("kmKapanis2").value;
+  var Gunluk2 = document.getElementById("Gunluk2").value;
+  var TeslimEden2 = document.getElementById("TeslimEden2").value;
+  var TeslimAlan2 = document.getElementById("TeslimAlan2").value;
+  var Arsiv2 = 2;
+
+  if(document.getElementById('radio2').checked) {
+  Arsiv2 = 0;
+}else if(document.getElementById('radio3').checked) {
+  Arsiv2 = 1;
+}
+
+  var Alis4 = new Date(document.getElementById("AlisTarihi2").value);
+  var Veris4 = new Date(document.getElementById("VerisTarihi2").value);
+
+  var date_diff_indays = function(date1, date2) {
+dt1 = new Date(date1);
+dt2 = new Date(date2);
+return Math.floor((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate()) ) /(1000 * 60 * 60 * 24));
+}
+Fark4 = date_diff_indays(Alis4, Veris4);
+
+  db.collection("AracKira").doc(DocID2).set({
+    AdSoyad: (AdSoyad2),
+    Model: (Model2),
+    Plaka: (Plaka2),
+    AlisTarihi: (AlisTarihi2),
+    VerisTarihi: (VerisTarihi2),
+    Saat: (Saat2),
+    kmAcilis: (kmAcilis2),
+    kmKapanis: (kmKapanis2),
+    Gunluk: (Gunluk2),
+    TeslimEden: (TeslimEden2),
+    TeslimAlan: (TeslimAlan2),
+    Arsiv: (Arsiv2),
+    Fark: (Fark4)
+})
+.then(function() {
+    console.log("Document successfully written!");
+    boom();
+})
+.catch(function(error) {
+    console.error("Error writing document: ", error);
+});
+
+$('#DuzenleFormu').modal('hide');
+
+}
+
+document.getElementById("yenile").onclick = function() {reload()};
+function reload(){
+
+location.reload();
+
+}
+
+function boom() {
+
+  db.collection("AracKira").where("Arsiv","==",1).get().then((querySnapshot) => {
+    var array1 = Array(querySnapshot.size);
+    for (var j = 0; j < array1.length; j++) {
+    array1[j] = new Array(13);
+    }
+    i = 0;
+
+      querySnapshot.forEach((doc) => {
+          //console.log(`${doc.id} => ${doc.data().born}, ${doc.data().first} `);
+          //console.log("Document data:", doc.data().born);
+          array1[i][0] = doc.id;
+          array1[i][1] = doc.data().AdSoyad;
+          array1[i][2] = doc.data().Model;
+          array1[i][3] = doc.data().Plaka;
+          array1[i][4] = doc.data().AlisTarihi;
+          array1[i][5] = doc.data().VerisTarihi;
+          array1[i][6] = doc.data().Saat;
+          array1[i][7] = doc.data().kmAcilis;
+          array1[i][8] = doc.data().kmKapanis;
+          array1[i][9] = doc.data().Gunluk;
+          array1[i][10] = doc.data().TeslimEden;
+          array1[i][11] = doc.data().TeslimAlan;
+          array1[i][12] = doc.data().Arsiv;
+          //console.log("Document data:", array1[i]);
+          i++;
+      });
+
+      renderAgain(array1);
+
+  } );
+
+function renderAgain(array1) {
+
+$('#datatable1').DataTable().clear().rows.add(array1).draw();
+
+ }
+
+}
+
+document.getElementById("sorgula").onclick = function() {boom2()};
+
+function boom2() {
+
+  var tarihsorgu = document.getElementById("tarihsorgu").value;
+
+  db.collection("AracKira").where("AlisTarihi","<=",tarihsorgu).get().then((querySnapshot) => {
+
+    var array1 = Array(querySnapshot.size);
+    for (var j = 0; j < array1.length; j++) {
+    array1[j] = new Array(13);
+    }
+    i = 0;
+
+      querySnapshot.forEach((doc) => {
+          //console.log(`${doc.id} => ${doc.data().born}, ${doc.data().first} `);
+          //console.log("Document data:", doc.data().born);
+          array1[i][0] = doc.id;
+          array1[i][1] = doc.data().AdSoyad;
+          array1[i][2] = doc.data().Model;
+          array1[i][3] = doc.data().Plaka;
+          array1[i][4] = doc.data().AlisTarihi;
+          array1[i][5] = doc.data().VerisTarihi;
+          array1[i][6] = doc.data().Saat;
+          array1[i][7] = doc.data().kmAcilis;
+          array1[i][8] = doc.data().kmKapanis;
+          array1[i][9] = doc.data().Gunluk;
+          array1[i][10] = doc.data().TeslimEden;
+          array1[i][11] = doc.data().TeslimAlan;
+          array1[i][12] = doc.data().Arsiv;
+          //console.log("Document data:", array1[i]);
+          i++;
+      });
+
+      //renderAgain2(array1);
+      Part2(array1);
+
+  } );
+
+  function Part2(array1) {
+
+  db.collection("AracKira").where("VerisTarihi",">=",tarihsorgu).get().then((querySnapshot) => {
+
+    var array2 = Array(querySnapshot.size);
+    for (var j = 0; j < array2.length; j++) {
+    array2[j] = new Array(13);
+    }
+    i = 0;
+
+    querySnapshot.forEach((doc) => {
+        //console.log(`${doc.id} => ${doc.data().born}, ${doc.data().first} `);
+        //console.log("Document data:", doc.data().born);
+        array2[i][0] = doc.id;
+        array2[i][1] = doc.data().AdSoyad;
+        array2[i][2] = doc.data().Model;
+        array2[i][3] = doc.data().Plaka;
+        array2[i][4] = doc.data().AlisTarihi;
+        array2[i][5] = doc.data().VerisTarihi;
+        array2[i][6] = doc.data().Saat;
+        array2[i][7] = doc.data().kmAcilis;
+        array2[i][8] = doc.data().kmKapanis;
+        array2[i][9] = doc.data().Gunluk;
+        array2[i][10] = doc.data().TeslimEden;
+        array2[i][11] = doc.data().TeslimAlan;
+        array2[i][12] = doc.data().Arsiv;
+        //console.log("Document data:", array1[i]);
+        i++;
+    });
+
+    var array3 = [];
+    for (var k = 0; k < array1.length; k++) {
+      for (var l = 0; l < array2.length; l++) {
+
+        if (array2[l][0] == array1[k][0]){
+          console.log(l);
+          array3.push(array2[l]);
+        }
+
+      }
+    }
+
+    renderAgain2(array3);
+
+}); }
+
+function renderAgain2(array3) {
+
+$('#datatable1').DataTable().clear().rows.add(array3).draw();
+
+ }
+
+}
+
+  db.collection("Musteriler").get().then((querySnapshot) => {
+
+    var select1 = document.getElementById("AdSoyad2");
+
+      querySnapshot.forEach((doc) => {
+          //console.log(`${doc.id} => ${doc.data().born}, ${doc.data().first} `);
+          //console.log("Document data:", doc.data().born);
+          select1.options[select1.options.length] = new Option(doc.data().AdSoyad);
+      });
+      });
+
+      db.collection("Araclar").get().then((querySnapshot) => {
+
+        var select3 = document.getElementById("Model2");
+        var select5 = document.getElementById("Plaka2");
+
+          querySnapshot.forEach((doc) => {
+              //console.log(`${doc.id} => ${doc.data().born}, ${doc.data().first} `);
+              //console.log("Document data:", doc.data().born);
+
+              select3.options[select3.options.length] = new Option(doc.data().Model);
+
+              select5.options[select5.options.length] = new Option(doc.data().Plaka);
+          });
+          });
+
+
+
+</script>
+
+
+
+  </body>
+  </html>
